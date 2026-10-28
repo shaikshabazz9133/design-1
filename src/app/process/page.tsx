@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Check, ChevronDown } from "lucide-react";
-import { CtaBand } from "@/components/site/sections";
-import { container, Heading, PageHero } from "@/components/site/ui";
+import { CtaBand, FaqSection } from "@/components/site/sections";
+import { container, PageHero } from "@/components/site/ui";
 import { ImageReveal, Reveal } from "@/components/motion/primitives";
-import { Accordion } from "@/components/ui/Accordion";
 import { site } from "@/lib/content/site";
 import { unsplash } from "@/lib/content/helpers";
 
@@ -20,57 +18,42 @@ export default function ProcessPage() {
     <>
       <PageHero eyebrow="Our process" title="Six calm steps, no surprises" accent={["calm"]} intro="We keep the process simple and transparent. You'll always know what's happening, what's next and what it costs." image={unsplash("1556020685-ae41abfc9365")} imageAlt="White sideboard with a round mirror and plant" />
 
-      <section className={`${container} pb-24 sm:pb-32`}>
-        <ol className="relative">
-          <span aria-hidden className="absolute bottom-0 left-6 top-0 w-px border-l-2 border-dashed border-sage/70 lg:left-1/2" />
-          {site.process.map((s, i) => {
-            const right = i % 2 === 1;
-            return (
-              <li key={s.title} className="relative grid gap-6 pb-14 pl-16 last:pb-0 lg:grid-cols-2 lg:gap-16 lg:pl-0">
-                <Reveal className="absolute left-0 top-0 lg:left-1/2 lg:-translate-x-1/2" y={0}>
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-sage-deep font-display text-lg text-snow ring-8 ring-snow">{i + 1}</span>
+      <section className={`${container} pb-16 sm:pb-20`}>
+        <ol>
+          {site.process.map((s, i) => (
+            <li key={s.title} className="grid gap-8 border-t border-ink/10 py-10 sm:py-14 lg:grid-cols-12 lg:gap-12">
+              {/* The step number pins beside its content while the step scrolls past. */}
+              <div className="lg:col-span-2">
+                <div className="lg:sticky lg:top-28">
+                  <Reveal y={10}>
+                    <span className="block font-display text-[3rem] italic leading-none text-pine">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="mt-4 block font-label text-[11px] uppercase tracking-[0.16em] text-mute">{s.duration}</span>
+                  </Reveal>
+                </div>
+              </div>
+              <div className="lg:col-span-4 lg:col-start-4">
+                <Reveal>
+                  <h2 className="font-display text-[clamp(2rem,3vw,2.75rem)] leading-[1.1]">{s.title}</h2>
+                  <p className="mt-5 font-sans text-[16px] font-light leading-relaxed text-mute">{s.description}</p>
                 </Reveal>
-                <Reveal className={`${right ? "lg:order-2 lg:pl-12" : "lg:pr-12 lg:text-right"}`}>
-                  <p className="font-sans text-sm font-medium text-oak-deep">{s.duration}</p>
-                  <h2 className="mt-1 font-display text-[clamp(1.8rem,3vw,2.5rem)] font-light tracking-[-0.02em]">{s.title}</h2>
-                  <p className={`mt-3 max-w-md font-sans text-[17px] leading-relaxed text-mute ${right ? "" : "lg:ml-auto"}`}>{s.description}</p>
-                  <ul className={`mt-5 flex flex-wrap gap-2 ${right ? "" : "lg:justify-end"}`}>
+                <Reveal delay={0.1}>
+                  <p className="mt-8 font-label text-[11px] uppercase tracking-[0.16em] text-mute">You receive</p>
+                  <ul className="mt-3 border-t border-ink/10">
                     {s.deliverables.map((d) => (
-                      <li key={d} className="inline-flex items-center gap-1.5 rounded-full bg-linen px-3 py-1.5 font-sans text-sm"><Check size={14} className="text-sage-deep" aria-hidden />{d}</li>
+                      <li key={d} className="flex items-center gap-3 border-b border-ink/10 py-3 font-sans text-[15px]"><span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-sand" />{d}</li>
                     ))}
                   </ul>
                 </Reveal>
-                <ImageReveal className={`relative aspect-[16/10] overflow-hidden rounded-[2rem] bg-sand ${right ? "lg:order-1 lg:mr-12" : "lg:ml-12"}`}>
+              </div>
+              <ImageReveal className="relative aspect-[4/3] overflow-hidden bg-shell lg:col-span-5 lg:col-start-8">
                   <Image src={unsplash(images[i])} alt="" fill loading={i === 0 ? "eager" : undefined} sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
-                </ImageReveal>
-              </li>
-            );
-          })}
+              </ImageReveal>
+            </li>
+          ))}
         </ol>
       </section>
 
-      <section className="bg-sage/25 py-24 sm:py-32">
-        <div className={`${container} grid gap-12 lg:grid-cols-12`}>
-          <div className="lg:col-span-4">
-            <Heading eyebrow="Practical details" title="Fees, timing and more" accent={["more"]} />
-          </div>
-          <div className="lg:col-span-8">
-            <Accordion
-              items={site.faqs}
-              defaultOpen={1}
-              className="space-y-3"
-              itemClassName="rounded-[1.5rem] bg-snow px-6 shadow-[0_10px_30px_-25px_rgba(43,46,41,0.5)]"
-              buttonClassName="min-h-16 py-5"
-              questionClassName="font-display text-lg"
-              panelClassName="pb-6 font-sans text-[16px] leading-relaxed text-mute"
-              icon={<ChevronDown size={20} />}
-              iconClassName="grid h-10 w-10 place-items-center rounded-full bg-linen text-sage-deep transition-transform duration-500 ease-luxe"
-              iconOpenClassName="rotate-180 bg-sage/40"
-            />
-          </div>
-        </div>
-      </section>
-
+      <FaqSection eyebrow="Practical details" title="Fees, timing and more" accent={["more"]} defaultOpen={1} />
       <CtaBand title="Ready for the first step?" accent={["first"]} />
     </>
   );

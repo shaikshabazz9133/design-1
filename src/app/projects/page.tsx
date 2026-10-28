@@ -12,15 +12,19 @@ export const metadata: Metadata = {
 };
 
 export default function ProjectsPage() {
+  const years = site.projects.map((p) => p.year);
   return (
     <>
-      <header className={`${container} pb-12 pt-32 text-center sm:pt-40`}>
-        <Reveal y={10}><Eyebrow>Projects</Eyebrow></Reveal>
-        <h1 className="mx-auto mt-6 max-w-3xl font-display text-[clamp(2.6rem,6.2vw,5rem)] font-light leading-[1.04] tracking-[-0.02em]">
-          <SplitText text="Homes full of light and life" immediate delay={0.2} accentWords={["light", "life"]} accentClassName="italic text-sage-deep" />
+      <header className={`${container} pb-10 pt-28 sm:pt-32`}>
+        <div className="flex items-start justify-between gap-6">
+          <Reveal y={8}><Eyebrow>Projects</Eyebrow></Reveal>
+          <Reveal y={8} className="font-label text-[11px] uppercase tracking-[0.16em] text-mute">{String(site.projects.length).padStart(2, "0")} works · {Math.min(...years)}—{Math.max(...years)}</Reveal>
+        </div>
+        <h1 className="mt-5 max-w-[16ch] font-display text-[clamp(2.6rem,5.2vw,4.75rem)] leading-[1.04]">
+          <SplitText text="Homes full of light and life" immediate delay={0.1} accentWords={["light", "life"]} accentClassName="italic text-pine" />
         </h1>
         <Reveal delay={0.4}>
-          <p className="mx-auto mt-5 max-w-xl font-sans text-lg leading-relaxed text-mute">A selection of recent homes and workplaces. Filter by type to find spaces like yours.</p>
+          <p className="mt-5 max-w-xl font-sans text-[17px] font-light leading-relaxed text-mute">A selection of recent homes and workplaces. Filter by type to find spaces like yours.</p>
         </Reveal>
       </header>
       <section className={`${container} pb-16`}>

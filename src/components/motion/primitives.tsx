@@ -13,6 +13,7 @@ import {
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+export const EASE_CURTAIN = [0.76, 0, 0.24, 1] as const;
 
 let booted = false;
 
@@ -22,7 +23,7 @@ let booted = false;
  */
 export function pageEntranceDelay() {
   if (typeof window === "undefined") return 0;
-  return booted ? 0.75 : 1.4;
+  return booted ? 0.35 : 0.9;
 }
 
 export function markBooted() {
@@ -64,9 +65,9 @@ export function Reveal({
   as = "div",
   className,
   delay = 0,
-  y = 28,
+  y = 18,
   x = 0,
-  duration = 0.9,
+  duration = 0.8,
   amount = 0.25,
 }: RevealProps) {
   const Comp = tags[as];
@@ -89,7 +90,7 @@ const groupVariants = (stagger: number, delay: number): Variants => ({
 });
 
 export const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 32 },
+  hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE_OUT } },
 };
 
@@ -185,7 +186,7 @@ export function SplitText({
                 className={`inline-block will-change-transform ${wordClassName ?? ""} ${isAccent ? accentClassName ?? "" : ""}`}
                 variants={{
                   hidden: { y: "110%" },
-                  show: { y: "0%", transition: { duration: 1, ease: EASE_OUT } },
+                  show: { y: "0%", transition: { duration: 0.9, ease: EASE_OUT } },
                 }}
               >
                 {word}
@@ -229,14 +230,14 @@ export function ImageReveal({ children, className, direction = "up", delay: base
         className="relative h-full w-full overflow-hidden"
         variants={{
           hidden: { clipPath: clipFrom[direction] },
-          show: { clipPath: "inset(0% 0% 0% 0%)", transition: { duration: 1.3, delay, ease: EASE_OUT } },
+          show: { clipPath: "inset(0% 0% 0% 0%)", transition: { duration: 1.1, delay, ease: EASE_CURTAIN } },
         }}
       >
         <motion.div
           className="relative h-full w-full"
           variants={{
-            hidden: { scale: 1.18 },
-            show: { scale: 1, transition: { duration: 1.6, delay, ease: EASE_OUT } },
+            hidden: { scale: 1.06 },
+            show: { scale: 1, transition: { duration: 1.4, delay, ease: EASE_OUT } },
           }}
         >
           {children}

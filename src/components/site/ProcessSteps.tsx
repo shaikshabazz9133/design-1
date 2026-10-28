@@ -1,36 +1,29 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "motion/react";
-import { useRef } from "react";
+import { motion } from "motion/react";
 import { EASE_OUT } from "@/components/motion/primitives";
 import type { ProcessStep } from "@/lib/types";
 
-/** Six soft cards joined by a path that fills as you scroll. */
+/** Six steps on a tidy three-column grid, each with a pine numeral and a sand rule. */
 export function ProcessSteps({ steps }: { steps: ProcessStep[] }) {
-  const ref = useRef<HTMLOListElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 60%"] });
-  const progress = useSpring(scrollYProgress, { stiffness: 80, damping: 22 });
-
   return (
-    <ol ref={ref} className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-      <div aria-hidden className="absolute bottom-6 left-[1.9rem] top-6 w-0.5 rounded bg-ink/10 sm:hidden">
-        <motion.div style={{ scaleY: progress }} className="h-full w-full origin-top rounded bg-sage-deep" />
-      </div>
+    <ol className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
       {steps.map((s, i) => (
         <motion.li
           key={s.title}
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.8, delay: (i % 3) * 0.1, ease: EASE_OUT }}
-          className="group relative flex gap-5 rounded-[1.75rem] bg-snow p-5 ring-1 ring-ink/5 transition-shadow duration-500 hover:shadow-[0_25px_50px_-30px_rgba(43,46,41,0.45)] sm:flex-col sm:p-7"
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.7, delay: (i % 3) * 0.08, ease: EASE_OUT }}
+          className="group"
         >
-          <span className="relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sage-deep font-display text-lg text-snow transition-transform duration-500 group-hover:scale-110">{i + 1}</span>
-          <div>
-            <p className="font-sans text-sm text-oak-deep">{s.duration}</p>
-            <h3 className="mt-1 font-display text-[1.35rem] font-normal tracking-[-0.02em]">{s.title}</h3>
-            <p className="mt-2 font-sans text-[15px] leading-relaxed text-mute">{s.description}</p>
+          <div className="flex items-baseline justify-between border-b border-ink/10 pb-3">
+            <span className="font-display text-[2.6rem] italic leading-none text-pine">{String(i + 1).padStart(2, "0")}</span>
+            <span className="font-label text-[11px] uppercase tracking-[0.18em] text-mute">{s.duration}</span>
           </div>
+          <span aria-hidden className="-mt-px block h-px w-0 bg-sand transition-all duration-700 ease-luxe group-hover:w-full" />
+          <h3 className="mt-5 font-display text-[1.6rem] font-normal leading-tight">{s.title}</h3>
+          <p className="mt-2 font-sans text-[15px] font-light leading-relaxed text-mute">{s.description}</p>
         </motion.li>
       ))}
     </ol>

@@ -54,7 +54,7 @@ export function Lightbox({ images, index, onChange, backdropClassName, controlCl
   }, [isOpen, go, onChange]);
 
   const current = index !== null ? images[index] : null;
-  const btn = `grid h-12 w-12 place-items-center rounded-full transition-colors ${controlClassName ?? ""}`;
+  const btn = `grid h-12 w-12 place-items-center transition-colors ${controlClassName ?? ""}`;
 
   return (
     <AnimatePresence>

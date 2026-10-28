@@ -1,59 +1,58 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { useRef, useState } from "react";
-import { EASE_OUT, pageEntranceDelay, SplitText } from "@/components/motion/primitives";
-import { Button, container, FloatingLeaf, Leaf } from "./ui";
+import { motion } from "motion/react";
+import { useState } from "react";
+import { EASE_OUT, ImageReveal, pageEntranceDelay, SplitText } from "@/components/motion/primitives";
+import { Button, container, Eyebrow } from "./ui";
 
-export function Hero({ image, imageAlt }: { image: string; imageAlt: string }) {
+/** Split hero: headline and actions on the left, a tall photograph on the right, all above the fold. */
+export function Hero({ image, imageAlt, detail, detailAlt }: { image: string; imageAlt: string; detail: string; detailAlt: string }) {
   const [base] = useState(pageEntranceDelay);
-  const ref = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const scale = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 1.12]);
-  const radius = useTransform(scrollYProgress, [0, 1], ["2.5rem", "4.5rem"]);
+  const fade = (d: number) => ({ initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.8, delay: base + d, ease: EASE_OUT } });
 
   return (
-    <section ref={ref} className={`${container} relative pt-24 sm:pt-28`}>
-      <motion.div
-        className="relative h-[calc(100svh-7rem)] min-h-[560px] overflow-hidden bg-sand sm:h-[calc(100svh-8rem)]"
-        style={{ borderRadius: radius }}
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: EASE_OUT }}
-      >
-        <motion.div className="absolute inset-0" style={{ scale }}>
-          <motion.div className="absolute inset-0" initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 2.4, ease: EASE_OUT }}>
-            <Image src={image} alt={imageAlt} fill preload sizes="(min-width: 1320px) 1260px, 100vw" className="object-cover" />
-          </motion.div>
-        </motion.div>
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
-
-        <FloatingLeaf className="absolute right-[8%] top-[10%] hidden h-24 w-16 rotate-12 text-snow/60 sm:block" />
-        <FloatingLeaf className="absolute right-[18%] top-[22%] hidden h-14 w-10 -rotate-12 text-sage/80 sm:block" slow />
-
-        <motion.div
-          className="absolute inset-x-3 bottom-3 rounded-[2rem] bg-snow/92 p-6 shadow-[0_30px_60px_-30px_rgba(43,46,41,0.5)] backdrop-blur-md sm:inset-x-auto sm:bottom-6 sm:left-6 sm:max-w-xl sm:p-9 lg:bottom-10 lg:left-10"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: base + 0.5, ease: EASE_OUT }}
-        >
-          <p className="inline-flex items-center gap-2 font-sans text-sm font-medium text-sage-deep">
-            <Leaf className="h-4 w-4" /> Interior design · Copenhagen
-          </p>
-          <h1 className="mt-4 font-display text-[clamp(2.3rem,5.4vw,4.4rem)] font-light leading-[1.02] tracking-[-0.02em] text-ink">
-            <SplitText text="Calm homes, shaped by nature." immediate delay={0.3} accentWords={["nature."]} accentClassName="italic text-sage-deep" />
+    <section className={`${container} pt-24 sm:pt-28`}>
+      <div className="grid items-center gap-10 lg:min-h-[calc(100svh-7rem)] lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-5">
+          <motion.div {...fade(0)}><Eyebrow>Interior design · Copenhagen</Eyebrow></motion.div>
+          <h1 className="mt-6 font-display text-[clamp(2.9rem,5.6vw,5rem)] leading-[1.02] text-ink">
+            <SplitText text="Calm homes, shaped by nature." immediate delay={0.05} accentWords={["nature"]} accentClassName="italic text-pine" />
           </h1>
-          <motion.p className="mt-4 max-w-md font-sans text-[17px] leading-relaxed text-mute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: base + 1.2, duration: 0.8 }}>
-            Light-filled interiors in oak, linen and stone — designed for slow mornings and long dinners.
+          <motion.p {...fade(0.5)} className="mt-6 max-w-md font-sans text-[17px] font-light leading-relaxed text-mute">
+            Light-filled interiors in oak, linen and stone — designed in Frederiksberg for slow mornings and long dinners.
           </motion.p>
-          <motion.div className="mt-6 flex flex-col gap-3 sm:flex-row" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: base + 1.35, duration: 0.8, ease: EASE_OUT }}>
+          <motion.div {...fade(0.6)} className="mt-9 flex flex-wrap gap-3">
             <Button href="/projects">Explore projects</Button>
-            <Button href="/contact" variant="ghost">Book a home visit</Button>
+            <Button href="/contact" variant="outline">Book a home visit</Button>
           </motion.div>
-        </motion.div>
-      </motion.div>
+          <motion.dl {...fade(0.75)} className="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-ink/10 pt-6">
+            {[["15", "Years"], ["210", "Homes"], ["92%", "Natural materials"]].map(([v, k]) => (
+              <div key={k} className="flex flex-col-reverse gap-1">
+                <dt className="font-sans text-[13px] font-light text-mute">{k}</dt>
+                <dd className="font-display text-[2rem] leading-none text-pine">{v}</dd>
+              </div>
+            ))}
+          </motion.dl>
+        </div>
+
+        <div className="relative lg:col-span-7">
+          <ImageReveal className="relative aspect-[4/5] overflow-hidden bg-shell sm:aspect-[5/4] lg:aspect-[4/4.4]" immediate delay={0.15}>
+            <Image src={image} alt={imageAlt} fill preload sizes="(min-width: 1024px) 680px, 100vw" className="object-cover" />
+          </ImageReveal>
+          <motion.div
+            className="absolute -bottom-6 -left-4 hidden w-44 border-[6px] border-white bg-white shadow-[0_24px_50px_-24px_rgba(28,58,49,0.4)] sm:block lg:-left-10 lg:w-52"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: base + 0.7, ease: EASE_OUT }}
+          >
+            <div className="relative aspect-square overflow-hidden bg-shell">
+              <Image src={detail} alt={detailAlt} fill sizes="208px" className="object-cover" />
+            </div>
+            <p className="px-1 pb-1 pt-2.5 font-label text-[11px] uppercase tracking-[0.18em] text-mute">Oak &amp; linen bedroom</p>
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

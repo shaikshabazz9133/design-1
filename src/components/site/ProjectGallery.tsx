@@ -2,28 +2,25 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
-import { ZoomIn } from "lucide-react";
 import { useState } from "react";
-import { EASE_OUT } from "@/components/motion/primitives";
+import { EASE_CURTAIN } from "@/components/motion/primitives";
 import { Lightbox } from "@/components/ui/Lightbox";
 
 type Img = { src: string; alt: string };
 
-/** Rounded bento gallery; images ease up on scroll and open full-screen on click. */
+/** Editorial bento gallery; each image wipes in on scroll and opens full-screen on click. */
 export function ProjectGallery({ images }: { images: Img[] }) {
   const [index, setIndex] = useState<number | null>(null);
   const spans = ["md:col-span-2 md:row-span-2", "", "", "md:col-span-2"];
 
   return (
     <>
-      <ul className="grid auto-rows-[16rem] gap-4 sm:auto-rows-[18rem] md:grid-cols-3">
+      <ul className="grid auto-rows-[16rem] gap-3 sm:auto-rows-[20rem] md:grid-cols-3">
         {images.map((img, i) => (
-          <motion.li key={img.src} className={spans[i % spans.length]} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.8, delay: i * 0.08, ease: EASE_OUT }}>
-            <button type="button" onClick={() => setIndex(i)} aria-label={`Open image ${i + 1} of ${images.length}: ${img.alt}`} className="group relative block h-full w-full overflow-hidden rounded-[1.75rem] bg-sand">
+          <motion.li key={img.src} className={spans[i % spans.length]} initial={{ clipPath: "inset(100% 0% 0% 0%)" }} whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }} viewport={{ once: true, amount: 0.15 }} transition={{ duration: 1.2, delay: (i % 3) * 0.1, ease: EASE_CURTAIN }}>
+            <button type="button" onClick={() => setIndex(i)} aria-label={`Open image ${i + 1} of ${images.length}: ${img.alt}`} data-cursor="Zoom" className="group relative block h-full w-full overflow-hidden bg-shell">
               <Image src={img.src} alt={img.alt} fill sizes="(min-width: 768px) 60vw, 100vw" className="object-cover transition-transform duration-[1.2s] ease-luxe group-hover:scale-105" />
-              <span aria-hidden className="absolute bottom-4 right-4 grid h-11 w-11 place-items-center rounded-full bg-snow/90 text-ink opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-                <ZoomIn size={18} />
-              </span>
+              <span aria-hidden className="absolute bottom-3 left-3 bg-white/90 px-2 py-1 font-label text-[10px] tracking-[0.14em] text-ink">{String(i + 1).padStart(2, "0")}</span>
             </button>
           </motion.li>
         ))}
@@ -32,9 +29,9 @@ export function ProjectGallery({ images }: { images: Img[] }) {
         images={images}
         index={index}
         onChange={setIndex}
-        backdropClassName="bg-ink/90 backdrop-blur-md text-snow"
-        controlClassName="bg-snow/90 text-ink hover:bg-sage"
-        captionClassName="font-sans text-snow/80"
+        backdropClassName="bg-forest/95 backdrop-blur-md text-white"
+        controlClassName="text-white ring-1 ring-inset ring-white/25 hover:bg-white hover:text-ink"
+        captionClassName="font-label text-[11px] uppercase tracking-[0.14em] text-white/70"
       />
     </>
   );

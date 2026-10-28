@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { ArrowUpRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { ContactForm } from "@/components/site/ContactForm";
-import { container, Eyebrow, FloatingLeaf } from "@/components/site/ui";
+import { LocalTime } from "@/components/motion/extras";
+import { Button, container, Eyebrow } from "@/components/site/ui";
 import { Reveal, SplitText } from "@/components/motion/primitives";
 import { directionsHref, MapEmbed } from "@/components/ui/MapEmbed";
 import { site } from "@/lib/content/site";
@@ -13,67 +14,68 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   const { brand } = site;
-  const cards = [
-    { icon: Mail, title: "Email", value: brand.email, href: `mailto:${brand.email}` },
-    { icon: Phone, title: "Phone", value: brand.phone, href: `tel:${brand.phoneHref}` },
-    { icon: MapPin, title: "Studio", value: brand.address.join(", "), href: directionsHref(brand.map.lat, brand.map.lon) },
+  const rows = [
+    { title: "Email", value: brand.email, href: `mailto:${brand.email}` },
+    { title: "Phone", value: brand.phone, href: `tel:${brand.phoneHref}` },
+    { title: "Studio", value: brand.address.join(", "), href: directionsHref(brand.map.lat, brand.map.lon) },
   ];
 
   return (
     <>
-      <section className={`${container} relative pb-20 pt-32 sm:pt-40`}>
-        <FloatingLeaf className="absolute right-6 top-28 hidden h-32 w-24 rotate-12 text-sage/50 lg:block" slow />
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <Reveal y={10}><Eyebrow>Contact</Eyebrow></Reveal>
-            <h1 className="mt-6 font-display text-[clamp(2.6rem,6vw,4.8rem)] font-light leading-[1.04] tracking-[-0.02em]">
-              <SplitText text="Let's talk about your home" immediate delay={0.2} accentWords={["home"]} accentClassName="italic text-sage-deep" />
-            </h1>
+      <section className={`${container} pb-16 pt-28 sm:pt-32`}>
+        <div className="flex items-start justify-between gap-6">
+          <Reveal y={8}><Eyebrow>Contact</Eyebrow></Reveal>
+          <Reveal y={8} className="font-label text-[11px] uppercase tracking-[0.16em] text-mute">CPH <LocalTime timeZone="Europe/Copenhagen" className="text-ink" /></Reveal>
+        </div>
+        <h1 className="mt-5 max-w-[16ch] font-display text-[clamp(2.6rem,5.2vw,4.75rem)] leading-[1.04]">
+          <SplitText text="Let’s talk about your home" immediate delay={0.1} accentWords={["home"]} accentClassName="italic text-pine" />
+        </h1>
+
+        <div className="mt-12 grid grid-cols-1 gap-14 border-t border-ink/10 pt-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
             <Reveal delay={0.4}>
-              <p className="mt-6 max-w-md font-sans text-lg leading-relaxed text-mute">Tell us a little about your project. We&apos;ll reply within two working days to arrange a home visit or video call.</p>
+              <p className="max-w-sm font-sans text-[17px] font-light leading-relaxed text-mute">Tell us a little about your project. We&apos;ll reply within two working days to arrange a home visit or video call.</p>
             </Reveal>
             <Reveal delay={0.5}>
-              <ul className="mt-10 space-y-3">
-                {cards.map(({ icon: Icon, title, value, href }) => (
-                  <li key={title}>
-                    <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined} className="group flex items-center gap-4 rounded-[1.5rem] bg-linen p-4 transition-colors hover:bg-sand">
-                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-snow text-sage-deep"><Icon size={19} aria-hidden /></span>
-                      <span className="min-w-0 font-sans">
-                        <span className="block text-sm text-mute">{title}</span>
-                        <span className="block break-all text-[15px] font-medium sm:break-words">{value}</span>
+              <ul className="mt-8 border-t border-ink/10">
+                {rows.map(({ title, value, href }) => (
+                  <li key={title} className="border-b border-ink/10">
+                    <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined} className="group flex items-center gap-4 py-5">
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-label text-[10px] uppercase tracking-[0.16em] text-mute">{title}</span>
+                        <span className="mt-1 block break-words font-sans text-[16px] font-light transition-colors group-hover:text-pine">{value}</span>
                       </span>
-                      <ArrowUpRight size={18} className="ml-auto shrink-0 text-mute transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
+                      <ArrowUpRight size={18} className="shrink-0 text-mute transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-pine" aria-hidden />
                     </a>
                   </li>
                 ))}
               </ul>
             </Reveal>
           </div>
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 lg:col-start-6">
             <ContactForm email={brand.email} />
           </div>
         </div>
       </section>
 
-      <section className={`${container} pb-16`} aria-labelledby="visit">
-        <div className="grid overflow-hidden rounded-[2.5rem] bg-linen lg:grid-cols-5">
-          <div className="p-8 sm:p-12 lg:col-span-2">
-            <h2 id="visit" className="font-display text-[clamp(1.8rem,3vw,2.5rem)] font-light tracking-[-0.02em]">Visit the studio</h2>
-            <p className="mt-3 font-sans text-[17px] leading-relaxed text-mute">Our material library is open by appointment — come and touch the oak, linen and stone for yourself.</p>
-            <dl className="mt-8 space-y-3">
+      <section className="bg-forest text-white" aria-labelledby="visit">
+        <div className="grid lg:grid-cols-12">
+          <div className="px-5 py-14 sm:px-12 sm:py-16 lg:col-span-5">
+            <Eyebrow className="text-white/60 [&>span:first-child]:bg-sand">Visit</Eyebrow>
+            <h2 id="visit" className="mt-6 font-display text-[clamp(2.2rem,3.4vw,3rem)] leading-[1.1]">Visit the studio</h2>
+            <p className="mt-5 max-w-md font-sans text-[17px] leading-relaxed text-white/65">Our material library is open by appointment — come and touch the oak, linen and stone for yourself.</p>
+            <dl className="mt-10 border-t border-white/15">
               {brand.hours.map((h) => (
-                <div key={h.days} className="flex items-center justify-between gap-4 rounded-2xl bg-snow px-4 py-3 font-sans text-[15px]">
-                  <dt className="flex items-center gap-2"><Clock size={15} className="text-sage-deep" aria-hidden />{h.days}</dt>
-                  <dd className="text-right text-mute">{h.time}</dd>
+                <div key={h.days} className="flex items-center justify-between gap-4 border-b border-white/15 py-4 font-sans text-[15px]">
+                  <dt>{h.days}</dt>
+                  <dd className="text-right font-label text-[12px] text-white/60">{h.time}</dd>
                 </div>
               ))}
             </dl>
-            <a href={directionsHref(brand.map.lat, brand.map.lon)} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-sage-deep px-6 font-sans font-medium text-snow hover:bg-ink">
-              Get directions <ArrowUpRight size={17} aria-hidden />
-            </a>
+            <Button href={directionsHref(brand.map.lat, brand.map.lon)} variant="light" className="mt-10">Get directions</Button>
           </div>
-          <div className="relative min-h-[22rem] lg:col-span-3">
-            <MapEmbed {...brand.map} className="absolute inset-0 saturate-[0.6] hue-rotate-[20deg]" />
+          <div className="relative min-h-[24rem] lg:col-span-7">
+            <MapEmbed {...brand.map} className="absolute inset-0 grayscale contrast-[1.05]" />
           </div>
         </div>
       </section>
