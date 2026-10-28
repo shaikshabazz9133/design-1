@@ -1,69 +1,61 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { EASE_OUT } from "@/components/motion/primitives";
+import { EASE_CURTAIN, EASE_OUT } from "@/components/motion/primitives";
 import type { Testimonial } from "@/lib/types";
 import { Stars } from "./ui";
 
-/** Shows two stories at a time (one on mobile) with a soft cross-slide. */
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** One story at a time, set large; lines rise in and out of a mask. Built for a dark section. */
 export function TestimonialCards({ items }: { items: Testimonial[] }) {
-  const [page, setPage] = useState(0);
+  const [index, setIndex] = useState(0);
   const [dir, setDir] = useState(1);
-  const pages = Math.ceil(items.length / 2);
   const go = (d: number) => {
     setDir(d);
-    setPage((p) => (p + d + pages) % pages);
+    setIndex((i) => (i + d + items.length) % items.length);
   };
-  const visible = items.slice(page * 2, page * 2 + 2);
+  const t = items[index];
 
   return (
     <div>
-      <div className="relative min-h-[34rem] sm:min-h-[19rem]">
-        <AnimatePresence mode="wait" custom={dir}>
-          <motion.ul
-            key={page}
-            custom={dir}
-            initial={{ opacity: 0, x: dir * 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: dir * -40 }}
-            transition={{ duration: 0.5, ease: EASE_OUT }}
-            className="grid gap-4 sm:grid-cols-2"
-            aria-live="polite"
+      <div className="relative min-h-[17rem] overflow-hidden sm:min-h-[14rem]" aria-live="polite">
+        <AnimatePresence mode="wait" custom={dir} initial={false}>
+          <motion.figure
+            key={index}
+            initial={{ y: dir * 24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: dir * -24, opacity: 0 }}
+            transition={{ duration: 0.6, ease: EASE_OUT }}
           >
-            {visible.map((t) => (
-              <li key={t.name}>
-                <figure className="flex h-full flex-col rounded-[2rem] bg-snow p-7 shadow-[0_25px_60px_-40px_rgba(43,46,41,0.5)] sm:p-9">
-                  <Stars count={t.rating} />
-                  <blockquote className="mt-5 font-display text-[1.35rem] font-light leading-snug tracking-[-0.01em] text-ink">“{t.quote}”</blockquote>
-                  <figcaption className="mt-auto flex items-center gap-3 pt-7">
-                    <span aria-hidden className="grid h-11 w-11 place-items-center rounded-full bg-sage/40 font-display text-sage-deep">{t.name.charAt(0)}</span>
-                    <span className="font-sans text-sm">
-                      <span className="block font-semibold text-ink">{t.name}</span>
-                      <span className="text-mute">{t.project}</span>
-                    </span>
-                  </figcaption>
-                </figure>
-              </li>
-            ))}
-          </motion.ul>
+            <Stars count={t.rating} />
+            <blockquote className="mt-6 font-display text-[clamp(1.6rem,2.6vw,2.4rem)] leading-[1.2] text-white">
+              <span className="text-sand">“</span>{t.quote}<span className="text-sand">”</span>
+            </blockquote>
+            <figcaption className="mt-7 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="font-sans text-[15px] text-white">{t.name}</span>
+              <span className="font-label text-[11px] uppercase tracking-[0.16em] text-white/50">{t.project}</span>
+            </figcaption>
+          </motion.figure>
         </AnimatePresence>
       </div>
-      <div className="mt-8 flex items-center gap-4">
-        <button type="button" onClick={() => go(-1)} aria-label="Previous stories" className="grid h-12 w-12 place-items-center rounded-full bg-snow text-ink shadow-sm transition-colors hover:bg-sage-deep hover:text-snow">
-          <ChevronLeft size={20} />
-        </button>
-        <div className="flex gap-1.5">
-          {Array.from({ length: pages }, (_, i) => (
-            <button key={i} type="button" onClick={() => { setDir(i > page ? 1 : -1); setPage(i); }} aria-label={`Show stories page ${i + 1}`} aria-current={i === page} className="grid h-8 w-6 place-items-center">
-              <span className={`block h-2 rounded-full transition-all duration-500 ${i === page ? "w-6 bg-sage-deep" : "w-2 bg-ink/20"}`} />
+
+      <div className="mt-8 flex items-center gap-6 border-t border-white/15 pt-6">
+        <p className="font-label text-[12px] tracking-[0.14em] text-white/60">
+          <span className="text-white">{pad(index + 1)}</span> / {pad(items.length)}
+        </p>
+        <div aria-hidden className="h-px flex-1 bg-white/15">
+          <motion.div className="h-full origin-left bg-sand" animate={{ scaleX: (index + 1) / items.length }} transition={{ duration: 0.8, ease: EASE_CURTAIN }} />
+        </div>
+        <div className="flex gap-2">
+          {([[-1, "Previous story", ArrowLeft], [1, "Next story", ArrowRight]] as const).map(([d, label, Icon]) => (
+            <button key={label} type="button" onClick={() => go(d)} aria-label={label} className="grid h-11 w-11 place-items-center rounded-full text-white ring-1 ring-inset ring-white/30 transition-colors duration-300 hover:bg-white hover:text-forest">
+              <Icon size={17} strokeWidth={1.5} aria-hidden />
             </button>
           ))}
         </div>
-        <button type="button" onClick={() => go(1)} aria-label="Next stories" className="grid h-12 w-12 place-items-center rounded-full bg-snow text-ink shadow-sm transition-colors hover:bg-sage-deep hover:text-snow">
-          <ChevronRight size={20} />
-        </button>
       </div>
     </div>
   );

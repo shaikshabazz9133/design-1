@@ -12,7 +12,7 @@ type Phase = "initial" | "loading" | "idle";
  * new path (link clicks and back/forward), and held for at least `minMs` so
  * the animation never flickers. Reduced motion skips it entirely.
  */
-export function useRouteLoader({ initialMs = 1300, minMs = 650 } = {}) {
+export function useRouteLoader({ initialMs = 900, minMs = 350 } = {}) {
   const pathname = usePathname();
   const reduce = useReducedMotion();
   const [phase, setPhase] = useState<Phase>("initial");
@@ -95,7 +95,7 @@ export function RouteLoader({
           // First load is already covered by the server HTML, so skip the entrance there only.
           initial={phase === "initial" ? false : enter}
           animate={settled}
-          exit={{ ...exit, transition: { duration: 0.7, ease: [0.76, 0, 0.24, 1] } }}
+          exit={{ ...exit, transition: { duration: 0.6, ease: [0.65, 0, 0.35, 1] } }}
           transition={{ duration: 0.45, ease: [0.76, 0, 0.24, 1] }}
         >
           {children}
@@ -113,18 +113,20 @@ export function ScrollProgress({ className }: { className?: string }) {
 }
 
 /**
- * A soft ring that trails the pointer and swells over links and buttons.
+ * A small dot that trails the pointer. Over links it grows; over anything with
+ * `data-cursor="Label"` it becomes a disc carrying that label (e.g. "View").
  * Mouse/trackpad only; the native cursor stays visible.
  */
-export function CursorFollower({ className, activeClassName }: { className?: string; activeClassName?: string }) {
+export function CursorFollower() {
   const reduce = useReducedMotion();
   const [enabled, setEnabled] = useState(false);
-  const [active, setActive] = useState(false);
+  const [mode, setMode] = useState<"idle" | "link" | "label">("idle");
+  const [label, setLabel] = useState("");
   const [visible, setVisible] = useState(false);
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
-  const sx = useSpring(x, { stiffness: 380, damping: 32, mass: 0.5 });
-  const sy = useSpring(y, { stiffness: 380, damping: 32, mass: 0.5 });
+  const sx = useSpring(x, { stiffness: 500, damping: 40, mass: 0.4 });
+  const sy = useSpring(y, { stiffness: 500, damping: 40, mass: 0.4 });
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: fine) and (hover: hover)");
@@ -140,7 +142,14 @@ export function CursorFollower({ className, activeClassName }: { className?: str
       x.set(e.clientX);
       y.set(e.clientY);
       setVisible(true);
-      setActive(!!(e.target as Element | null)?.closest?.("a, button, [role='button'], input, select, textarea, label"));
+      const t = e.target as Element | null;
+      const labelled = t?.closest?.("[data-cursor]");
+      if (labelled) {
+        setMode("label");
+        setLabel(labelled.getAttribute("data-cursor") ?? "");
+      } else {
+        setMode(t?.closest?.("a, button, [role='button'], input, select, textarea, label") ? "link" : "idle");
+      }
     };
     const leave = () => setVisible(false);
     window.addEventListener("pointermove", move);
@@ -152,13 +161,29 @@ export function CursorFollower({ className, activeClassName }: { className?: str
   }, [enabled, x, y]);
 
   if (!enabled) return null;
+  const size = { idle: 8, link: 40, label: 84 }[mode];
   return (
     <motion.div aria-hidden style={{ x: sx, y: sy }} className="pointer-events-none fixed left-0 top-0 z-[95]">
       <motion.div
-        className={`-ml-4 -mt-4 h-8 w-8 rounded-full ${active ? activeClassName ?? "" : className ?? ""}`}
-        animate={{ scale: active ? 1.9 : 1, opacity: visible ? 1 : 0 }}
-        transition={{ duration: 0.35, ease: EASE_OUT }}
-      />
+        className={`grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full ${mode === "link" ? "border border-pine/60 bg-transparent" : "bg-pine"}`}
+        animate={{ width: size, height: size, opacity: visible ? 1 : 0 }}
+        transition={{ duration: 0.4, ease: EASE_OUT }}
+      >
+        <AnimatePresence>
+          {mode === "label" && (
+            <motion.span
+              key={label}
+              className="font-label text-[11px] uppercase tracking-[0.16em] text-white"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.6 }}
+              transition={{ duration: 0.25 }}
+            >
+              {label}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </motion.div>
   );
 }
@@ -254,4 +279,17 @@ export function MarqueeBand({
       </div>
     </div>
   );
+}
+
+/** Live wall-clock time in a given IANA zone; renders nothing until hydrated. */
+export function LocalTime({ timeZone, className }: { timeZone: string; className?: string }) {
+  const [now, setNow] = useState<string | null>(null);
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const tick = () => setNow(fmt.format(new Date()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [timeZone]);
+  return <span className={`tabular-nums ${className ?? ""}`}>{now ?? "--:--:--"}</span>;
 }
